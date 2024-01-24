@@ -1,16 +1,3 @@
-# İŞ PROBLEMİ
-
-# Şirketi terk edecek müşterileri tahmin edebilecek bir makine öğrenmesi modeli geliştirilmesi beklenmektedir.
-
-# VERİ SETİ HİKAYESİ
-
-# Telco müşteri kaybı verileri, üçüncü çeyrekte Kaliforniya'daki 7043 müşteriye ev telefonu veİnternet hizmetleri sağlayan hayali bir telekom şirketi hakkında bilgi içerir. Hangi müşterilerin hizmetlerinden ayrıldığını, kaldığını veya hizmete kaydolduğunu gösterir.
-
-
-
-# GÖREV 1: KEŞİFÇİ VERİ ANALİZİ
-
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,8 +18,6 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.set_option('display.width', 500)
 
 
-
-# Adım 1: Numerik ve kategorik değişkenleri yakalayınız.
 
 df=pd.read_csv("8.Hafta/Telco-Customer-Churn.csv")
 df.head()
@@ -120,8 +105,6 @@ check_df(df)
 
 
 
-# Adım 2: Gerekli düzenlemeleri yapınız. (Tip hatası olan değişkenler gibi)
-
 df.info()
 df.head()
 
@@ -133,7 +116,6 @@ df["Churn"]=df["Churn"].apply(lambda x:1 if x == "Yes" else 0)
 
 
 
-# Adım 3:  Numerik ve kategorik değişkenlerin veri içindeki dağılımını gözlemleyiniz.
 
 
 def cat_summary(dataframe, col_name, plot=False): # plot:true olursa if çalışır.
@@ -147,7 +129,7 @@ def cat_summary(dataframe, col_name, plot=False): # plot:true olursa if çalış
 
 cat_summary(df, "Churn")
 
-# Adım 4: Kategorik değişkenler ile hedef değişken incelemesini yapınız.
+
 
 def target_summary_with_num(dataframe, target, numerical_col):
     print(dataframe.groupby(target).agg({numerical_col: "mean"}), end="\n\n\n")
@@ -156,7 +138,6 @@ def target_summary_with_num(dataframe, target, numerical_col):
 for col in num_cols:
     target_summary_with_num(df, "Churn", col)
 
-# Adım 5: Aykırı gözlem var mı inceleyiniz.
 
 
 def outlier_thresholds(dataframe, col_name, q1=0.25, q3=0.75):
@@ -182,28 +163,11 @@ for col in num_cols:
 
 
 
-# Adım 6: Eksik gözlem var mı inceleyiniz.
+
 
 df.isnull().sum()
 
-# Görev 2 : Feature Engineering
 
-
-
-# Adım 1:  Eksik ve aykırı gözlemler için gerekli işlemleri yapınız.
-
-# aykırı veya eksik gözlem yok (varmış aşağıda düzelttim.)
-
-# Adım 2: Yeni değişkenler oluşturunuz.
-
-
-
-
-
-# Adım 3:  Encoding işlemlerini gerçekleştiriniz.
-
-
-#label encoding
 
 def label_encoder(dataframe, binary_col):
     labelencoder = LabelEncoder()
@@ -220,10 +184,7 @@ df.head()
 
 df.info()
 
-# One-Hot Encoding İşlemi
-# cat_cols listesinin güncelleme işlemi
-# target değişkenimi cıkarıyorum.
-# bir de binary_cols, zaten daha öncesinde label encoder uygulamıstım.
+
 cat_cols = [col for col in cat_cols if col not in binary_cols and col not in ["Churn"]]
 cat_cols
 
@@ -237,11 +198,11 @@ df = one_hot_encoder(df, cat_cols, drop_first=True)
 
 df.head()
 
-# Adım 4: Numerik değişkenler için standartlaştırma yapınız.
+
 
 num_cols
 
-scaler = RobustScaler() # RobutScaler kullandım çünkü aykırı değerlerden daha az etkileniyor.
+scaler = RobustScaler() 
 df[num_cols] = scaler.fit_transform(df[num_cols])
 
 df.head(20)
@@ -249,14 +210,7 @@ df.shape
 
 df.describe()
 
-#Görev 3 : Modelleme
 
-
-
-# Adım 1:  Sınıflandırma algoritmaları ile modeller kurup, accuracyskorlarını inceleyip. En iyi 4 modeli seçiniz.
-
-
-# KNN
 
 y = df["Churn"]
 X = df.drop(["Churn","customerID"], axis=1)
@@ -274,10 +228,10 @@ random_user = X.sample(1, random_state=45)
 
 knn_model.predict(random_user)
 
-# Confusion matrix için y_pred:
+
 y_pred = knn_model.predict(X)
 
-# AUC için y_prob:
+
 y_prob = knn_model.predict_proba(X)[:, 1]
 
 print(classification_report(y, y_pred))
@@ -298,7 +252,7 @@ cv_results['test_roc_auc'].mean()
 
 
 
-# Adım 2: Seçtiğiniz modeller ile hiperparametreoptimizasyonu gerçekleştirin ve bulduğunuz hiparparametrelerile modeli tekrar kurunuz.
+
 
 knn_model = KNeighborsClassifier()
 knn_model.get_params()
@@ -316,9 +270,7 @@ knn_gs_best.best_params_
 
 
 
-################################################
-# 6. Final Model
-################################################
+
 
 knn_final = knn_model.set_params(**knn_gs_best.best_params_).fit(X, y)
 
